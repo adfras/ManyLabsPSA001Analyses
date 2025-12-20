@@ -1,0 +1,24 @@
+# R / RStudio
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# Data (download separately; see data/README.md)
+data/raw/
+data/processed/
+!data/README.md
+
+# Outputs (generated)
+models/
+reports/
+archive/
+
+# CmdStan build artifacts (if any land under stan/)
+stan/*.exe
+stan/*.hpp
+stan/*.o
+stan/*.a
+
+# Local docs
+Intro5.docx

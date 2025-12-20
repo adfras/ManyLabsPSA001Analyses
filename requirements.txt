@@ -1,0 +1,2 @@
+# Python requirements (only needed for the OSF fetch helper)
+osfclient==0.0.5
