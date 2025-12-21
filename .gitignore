@@ -22,3 +22,6 @@ stan/*.a
 
 # Local docs
 Intro5.docx
+
+# Repomix bundles
+**/repomix-output*.xml
