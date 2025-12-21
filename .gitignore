@@ -7,6 +7,11 @@
 # Data (download separately; see data/README.md)
 data/raw/
 data/processed/
+data/*.csv
+data/*.tsv
+data/*.xls
+data/*.xlsx
+data/*.rds
 !data/README.md
 
 # Outputs (generated)
