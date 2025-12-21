@@ -93,11 +93,11 @@ build_row <- function(dataset, summary_path, bf_path, effect_vars, tau_vars) {
 defaults <- list(
   out = "reports/site_model_comparisons.csv",
   stroop_tag = "stroop_ml3_site",
-  stroop_cv_tag = "stroop_ml3_site_sub30_mm",
-  psa001_attractive_tag = "none",
-  psa001_attractive_cv_tag = "",
+  stroop_cv_tag = "stroop_ml3_site_sub30",
+  psa001_attractive_tag = "psa001_attractive_gender_site_ad99",
+  psa001_attractive_cv_tag = "psa001_attractive_gender_sub30",
   psa001_dominant_tag = "psa001_dominant_gender_site_ad99",
-  psa001_dominant_cv_tag = ""
+  psa001_dominant_cv_tag = "psa001_dominant_gender_sub30"
 )
 
 opts <- parse_args(commandArgs(trailingOnly = TRUE), defaults)

@@ -42,13 +42,12 @@
 | summary_file | max_rhat | n_gt_1_01 | n_gt_1_05 | n_params |
 |---|---|---|---|---|
 | location_scale_homo_psa001_attractive_gender_site_ad99_summary.csv | 1.031 | 5.000 | 0.000 | 12.000 |
-| location_scale_homo_psa001_dominant_gender_site_ad99_summary.csv | 1.056 | 3.000 | 2.000 | 12.000 |
+| location_scale_homo_psa001_dominant_gender_site_ad99_summary.csv | 1.015 | 2.000 | 0.000 | 12.000 |
 | location_scale_homo_stroop_ml3_site_summary.csv | 1.010 | 0.000 | 0.000 | 12.000 |
-| location_scale_psa001_attractive_gender_group_smoke_summary.csv | -Inf | 0.000 | 0.000 | 292.000 |
 | location_scale_psa001_attractive_gender_site_ad99_summary.csv | 1.031 | 8.000 | 0.000 | 292.000 |
 | location_scale_psa001_attractive_gender_summary.csv | 1.053 | 8.000 | 2.000 | 292.000 |
 | location_scale_psa001_dominant_gender_site_ad99_summary.csv | 1.041 | 9.000 | 0.000 | 319.000 |
-| location_scale_stroop_ml3_site_sub_summary.csv | 1.021 | 10.000 | 0.000 | 453.000 |
 | location_scale_stroop_ml3_site_sub10_summary.csv | 1.028 | 6.000 | 0.000 | 233.000 |
 | location_scale_stroop_ml3_site_sub30_mm_summary.csv | 1.026 | 8.000 | 0.000 | 673.000 |
+| location_scale_stroop_ml3_site_sub_summary.csv | 1.021 | 10.000 | 0.000 | 453.000 |
 | location_scale_stroop_ml3_site_summary.csv | 1.026 | 4.000 | 0.000 | 3350.000 |
