@@ -317,10 +317,10 @@ draft <- c(
   "Interpretation: a substantial portion of site-level variance is explained by composition/precision (strong for Stroop and Dominant; partial for Attractive).",
   "",
   "## RQ4: Predictive comparison (site K-fold)",
-  if (is.null(rq4)) "(site_model_comparisons.csv not found)" else md_table(
-    rq4 %>% select(dataset, comparison_method, comparison_unit, k_folds, elpd_diff, elpd_diff_se, delta_looic),
-    digits = 3
-  ),
+  if (is.null(rq4)) "(site_model_comparisons.csv not found)" else {
+    cols <- c("dataset", "comparison_method", "comparison_unit", "k_folds", "elpd_diff", "elpd_diff_se", "delta_looic")
+    md_table(rq4 %>% select(any_of(cols)), digits = 3)
+  },
   "",
   "Interpretation: heteroskedastic model is strongly favored for Stroop but disfavored for PSA001 tasks under site-held-out prediction; benefits are task-dependent."
 )
