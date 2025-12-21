@@ -9,6 +9,7 @@ suppressPackageStartupMessages({
   library(posterior)
   library(loo)
 })
+if (file.exists("R/00_run_manifest.R")) source("R/00_run_manifest.R")
 
 # Honor CMDSTAN env var if provided (useful when the default install is read-only)
 override <- Sys.getenv("CMDSTAN_OVERRIDE", unset = "")
@@ -63,6 +64,15 @@ init_val <- parse_flag("init", NA) # allow --init 0 for safer starts
 use_site_effects <- parse_bool(parse_flag("site_effects", "true"), default = TRUE)
 refresh <- as.integer(parse_flag("refresh", 10))
 save_warmup <- parse_bool(parse_flag("save_warmup", "false"), default = FALSE)
+
+# Capture requested flags before any automatic adjustments.
+req_compare_homo <- compare_homo
+req_do_loo <- do_loo
+req_use_site_effects <- use_site_effects
+req_loo_unit <- loo_unit
+req_likelihood <- likelihood
+cmd_args <- paste(commandArgs(), collapse = " ")
+loo_disabled_reason <- NA_character_
 # The Student-t variant was experimentally explored for robustness but showed
 # poor geometry and unstable diagnostics for the ManyLabs data. To avoid
 # accidentally using it in production runs, we currently disable it here.
@@ -86,6 +96,7 @@ if (!all(c("y", "person") %in% names(df))) stop("Input must have columns y and p
 if (homo_only) {
   compare_homo <- TRUE
   do_loo <- FALSE
+  loo_disabled_reason <- "homo_only"
 }
 
 if (!loo_unit %in% c("obs", "person", "site")) {
@@ -120,6 +131,7 @@ if (!use_site_effects) {
   site_int <- rep(1L, nrow(df))
   person_site <- rep(1L, J)
   compare_homo <- FALSE  # site comparison not meaningful without site effects
+  if (is.na(loo_disabled_reason)) loo_disabled_reason <- "site_effects_disabled"
 }
 
 stan_data <- list(
@@ -159,6 +171,7 @@ if (do_loo && loo_unit == "obs" && !force_loo && !is.na(loo_max_n) && stan_data$
   )
   do_loo <- FALSE
   compare_homo <- FALSE
+  loo_disabled_reason <- "loo_max_n"
 }
 
 # If --loo=false, we can still fit the homoskedastic baseline for RQ1-style
@@ -208,10 +221,54 @@ if (!is.na(stepsize)) sample_args$step_size <- stepsize
 if (!is.na(init_val)) sample_args$init <- eval(parse(text = init_val))
 if (isTRUE(save_warmup)) sample_args$save_warmup <- TRUE
 
+append_manifest_row <- function(model_type, action, seed_val) {
+  if (!exists("append_run_manifest")) return(invisible(FALSE))
+  append_run_manifest(list(
+    timestamp = format(Sys.time(), "%Y-%m-%d %H:%M:%S%z"),
+    script = "R/04_fit_stroop_location_scale.R",
+    action = action,
+    model = model_type,
+    tag = tag,
+    data = in_path,
+    N = stan_data$N,
+    J = stan_data$J,
+    K = stan_data$K,
+    P = stan_data$P,
+    likelihood = req_likelihood,
+    use_site_effects = use_site_effects,
+    homo_only = homo_only,
+    compare_homo_requested = req_compare_homo,
+    compare_homo_effective = compare_homo,
+    loo_requested = req_do_loo,
+    loo_effective = do_loo,
+    loo_unit = req_loo_unit,
+    loo_disabled_reason = loo_disabled_reason,
+    moment_match = moment_match,
+    force_loo = force_loo,
+    loo_max_n = loo_max_n,
+    chains = chains,
+    parallel_chains = parallel_chains,
+    iter_warmup = iter,
+    iter_sampling = iter,
+    thin = thin,
+    adapt_delta = ifelse(is.na(adapt_delta), NA, adapt_delta),
+    max_treedepth = ifelse(is.na(max_treedepth), NA, max_treedepth),
+    stepsize = ifelse(is.na(stepsize), NA, stepsize),
+    init = init_val,
+    seed = seed_val,
+    refresh = refresh,
+    save_warmup = save_warmup,
+    reuse_hetero = reuse_hetero,
+    reuse_homo = reuse_homo,
+    cmd = cmd_args
+  ))
+}
+
 fit <- NULL
 if (!homo_only) {
   if (reuse_hetero && file.exists(model_path)) {
     message("Loading existing heteroskedastic fit from ", model_path)
+    append_manifest_row("hetero", "reuse_rds", 2027)
     fit <- tryCatch(readRDS(model_path), error = function(e) {
       message(
         "Failed to read ", model_path, " (", conditionMessage(e), "). ",
@@ -228,6 +285,7 @@ if (!homo_only) {
     }
   }
   if (is.null(fit)) {
+    append_manifest_row("hetero", "fit_cmdstan", 2027)
     fit <- do.call(mod$sample, sample_args)
   }
 }
@@ -442,6 +500,7 @@ if (compare_homo) {
   dir.create(homo_output_dir, showWarnings = FALSE, recursive = TRUE)
   if (reuse_homo && file.exists(homo_model_path)) {
     message("Loading existing homoskedastic fit from ", homo_model_path)
+    append_manifest_row("homo", "reuse_rds", 2029)
     homo_fit <- tryCatch(readRDS(homo_model_path), error = function(e) {
       message(
         "Failed to read ", homo_model_path, " (", conditionMessage(e), "). ",
@@ -475,6 +534,7 @@ if (compare_homo) {
     if (!is.na(stepsize)) homo_sample_args$step_size <- stepsize
     if (!is.na(init_val)) homo_sample_args$init <- eval(parse(text = init_val))
     if (isTRUE(save_warmup)) homo_sample_args$save_warmup <- TRUE
+    append_manifest_row("homo", "fit_cmdstan", 2029)
     homo_fit <- do.call(homo_mod$sample, homo_sample_args)
     # Save homoskedastic fit immediately in case LOO/BF fails later
     tryCatch(saveRDS(homo_fit, homo_model_path), error = function(e) {

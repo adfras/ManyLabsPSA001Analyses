@@ -15,6 +15,7 @@ suppressPackageStartupMessages({
   library(tidyverse)
   library(cmdstanr)
 })
+if (file.exists("R/00_run_manifest.R")) source("R/00_run_manifest.R")
 
 override <- Sys.getenv("CMDSTAN_OVERRIDE", unset = "")
 if (nzchar(override)) Sys.setenv(CMDSTAN = override)
@@ -143,6 +144,44 @@ stan_data_base <- list(
   y = df$y,
   w = rep(1L, nrow(df))
 )
+
+# Record the K-fold run configuration.
+if (exists("append_run_manifest")) {
+  append_run_manifest(list(
+    timestamp = format(Sys.time(), "%Y-%m-%d %H:%M:%S%z"),
+    script = "R/11_kfold_location_scale.R",
+    action = "kfold_run",
+    model = "kfold",
+    tag = tag,
+    data = in_path,
+    N = stan_data_base$N,
+    J = stan_data_base$J,
+    K = stan_data_base$K,
+    P = stan_data_base$P,
+    unit_raw = unit_raw,
+    units = paste(units, collapse = ";"),
+    k_person = k_person,
+    k_site = k_site,
+    k_global = k_global,
+    seed = seed,
+    chains = chains,
+    parallel_chains = parallel_chains,
+    iter_warmup = iter,
+    iter_sampling = iter,
+    thin = thin,
+    adapt_delta = adapt_delta,
+    max_treedepth = max_treedepth,
+    stepsize = ifelse(is.na(stepsize), NA, stepsize),
+    init = init_val,
+    refresh = refresh,
+    save_warmup = save_warmup,
+    homo_person_slope = homo_person_slope,
+    keep_draws = keep_draws,
+    resume = resume,
+    write_pointwise = write_pointwise,
+    cmd = paste(commandArgs(), collapse = " ")
+  ))
+}
 
 dir.create("models", showWarnings = FALSE, recursive = TRUE)
 dir.create("reports", showWarnings = FALSE, recursive = TRUE)
