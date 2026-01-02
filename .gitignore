@@ -25,6 +25,10 @@ stan/*.a
 logs/
 simple_test.R
 stroop_homo_vm_bundle.zip
+stroop_homo_vm_instructions.txt
+intro5_rewrite.md
+results_checks.md
+results_draft.md
 
 # Repomix bundles
 **/repomix-output*.xml
