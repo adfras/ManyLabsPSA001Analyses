@@ -81,4 +81,5 @@ Rscript R/13_make_psa001_trait_dataset.R --trait dominant --ind path/to/subset_i
 
 ## Results snapshot (tracked)
 A lightweight snapshot of the core RQ outputs is in:
-- `results/rq_results_2025-12-20/`
+- `results/rq_results_2026-01-02/` (latest)
+- Older snapshots are kept under `results/` for reference.
