@@ -1,12 +1,12 @@
 #!/usr/bin/env Rscript
-# Create a smaller, site-balanced Stroop dataset for fast LOO / hetero-vs-homo comparisons.
+# Create a smaller, site-balanced dataset for fast CV / hetero-vs-homo comparisons.
 #
-# The full Stroop trials file (~210k rows) makes PSIS-LOO and homoskedastic comparisons
-# expensive. This script subsamples participants within each site (stratified by site),
-# then keeps all trials for the sampled participants.
+# This script subsamples participants within each site (stratified by site), then keeps
+# all trials for the sampled participants. It can be used for any dataset with `person`
+# and `site` columns (Stroop or PSA001).
 #
 # Usage:
-#   Rscript R/05_make_stroop_subsample.R \
+#   Rscript R/04_make_site_subsample.R \
 #     --in data/processed/trials_stroop_ml3_with_site.csv \
 #     --out data/processed/trials_stroop_ml3_with_site_sub.csv \
 #     --per_site 20 \

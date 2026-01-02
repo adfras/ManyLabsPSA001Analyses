@@ -10,11 +10,11 @@
 #
 # The output format is compatible with:
 # - R/utils/00_counts_table.R
-# - R/04_fit_stroop_location_scale.R
+# - R/05_fit_location_scale.R
 #
 # Usage:
-#   Rscript R/13_make_psa001_trait_dataset.R --trait dominant
-#   Rscript R/13_make_psa001_trait_dataset.R --trait trustworthy --out data/processed/psa001_trustworthy_gender.csv
+#   Rscript R/03_make_psa001_trait_dataset.R --trait dominant
+#   Rscript R/03_make_psa001_trait_dataset.R --trait trustworthy --out data/processed/psa001_trustworthy_gender.csv
 
 suppressPackageStartupMessages({
   library(tidyverse)

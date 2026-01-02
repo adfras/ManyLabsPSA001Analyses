@@ -130,7 +130,7 @@ stan_data_base <- list(
 if (exists("append_run_manifest")) {
   append_run_manifest(list(
     timestamp = format(Sys.time(), "%Y-%m-%d %H:%M:%S%z"),
-    script = "R/11_kfold_location_scale.R",
+    script = "R/06_kfold_location_scale.R",
     action = "kfold_run",
     model = "kfold",
     tag = tag,

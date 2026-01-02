@@ -29,7 +29,7 @@ run_one <- function(tag, in_path, effect_direction) {
 
   # 1) Make holdout file
   system2(rscript, args = c(
-    "R/17_trial_holdout_predict.R",
+    "R/12_trial_holdout_predict.R",
     "--in", in_path,
     "--tag", tag,
     "--holdout_frac", holdout_frac,
@@ -40,7 +40,7 @@ run_one <- function(tag, in_path, effect_direction) {
 
   # 2) Fit model on w==1
   system2(rscript, args = c(
-    "R/04_fit_stroop_location_scale.R",
+    "R/05_fit_location_scale.R",
     holdout_path,
     "--tag", tag,
     "--loo", "false",
@@ -56,7 +56,7 @@ run_one <- function(tag, in_path, effect_direction) {
 
   # 3) Evaluate holdout predictions
   system2(rscript, args = c(
-    "R/17_trial_holdout_predict.R",
+    "R/12_trial_holdout_predict.R",
     "--in", holdout_path,
     "--tag", tag,
     "--make_holdout", "false",

@@ -65,7 +65,7 @@ ensure_subsample <- function(in_path, out_path, label) {
     return()
   }
   run_rscript(
-    args = c("R/05_make_stroop_subsample.R",
+    args = c("R/04_make_site_subsample.R",
              "--in", in_path,
              "--out", out_path,
              "--per_site", as.character(per_site),
@@ -87,7 +87,7 @@ ensure_hetero_reports <- function(tag, data_path, label) {
 
   if (can_reuse) {
     run_rscript(
-      args = c("R/04_fit_stroop_location_scale.R", data_path,
+      args = c("R/05_fit_location_scale.R", data_path,
                "--tag", tag,
                "--reuse_hetero", "true",
                "--loo", "false",
@@ -104,7 +104,7 @@ ensure_hetero_reports <- function(tag, data_path, label) {
   }
 
   run_rscript(
-    args = c("R/04_fit_stroop_location_scale.R", data_path,
+    args = c("R/05_fit_location_scale.R", data_path,
              "--tag", tag,
              "--loo", "false",
              "--compare_homo", "false",
@@ -131,7 +131,7 @@ ensure_homo_summary <- function(tag, data_path, label) {
 
   if (can_reuse) {
     run_rscript(
-      args = c("R/04_fit_stroop_location_scale.R", data_path,
+      args = c("R/05_fit_location_scale.R", data_path,
                "--tag", tag,
                "--homo_only", "true",
                "--reuse_homo", "true",
@@ -148,7 +148,7 @@ ensure_homo_summary <- function(tag, data_path, label) {
   }
 
   run_rscript(
-    args = c("R/04_fit_stroop_location_scale.R", data_path,
+    args = c("R/05_fit_location_scale.R", data_path,
              "--tag", tag,
              "--homo_only", "true",
              "--compare_homo", "true",
@@ -173,7 +173,7 @@ ensure_kfold <- function(data_path, tag, label) {
     return(FALSE)
   }
   run_rscript(
-    args = c("R/11_kfold_location_scale.R", data_path,
+    args = c("R/06_kfold_location_scale.R", data_path,
              "--tag", tag,
              "--unit", "site",
              "--k_site", as.character(k_site),
@@ -219,7 +219,7 @@ rq1_psa_dom_tag <- if (psa_dom_ok && psa_dom_homo_ok) psa_dom_tag else "none"
 
 if (rq1_stroop_tag != "none" || rq1_psa_attr_tag != "none" || rq1_psa_dom_tag != "none") {
   run_rscript(
-    args = c("R/12_rq1_shift_table.R",
+    args = c("R/07_rq1_shift_table.R",
              paste0("--stroop_tag=", rq1_stroop_tag),
              paste0("--psa001_attractive_tag=", rq1_psa_attr_tag),
              paste0("--psa001_dominant_tag=", rq1_psa_dom_tag),
@@ -231,7 +231,7 @@ if (rq1_stroop_tag != "none" || rq1_psa_attr_tag != "none" || rq1_psa_dom_tag !=
 # Participant prevalence
 if (stroop_ok || psa_attr_ok || psa_dom_ok) {
   run_rscript(
-    args = c("R/07_participants_prevalence.R",
+    args = c("R/08_participants_prevalence.R",
              paste0("--include_psa001_attractive=", ifelse(psa_attr_ok, "true", "false")),
              paste0("--include_psa001_dominant=", ifelse(psa_dom_ok, "true", "false")),
              "--out_detail=reports/person_prevalence_detail.csv",
@@ -243,7 +243,7 @@ if (stroop_ok || psa_attr_ok || psa_dom_ok) {
 # Site variance decomposition (supplemental)
 if (stroop_ok || psa_attr_ok || psa_dom_ok) {
   run_rscript(
-    args = c("R/08_site_variance_decomp.R",
+    args = c("R/09_site_variance_decomp.R",
              paste0("--include_psa001_attractive=", ifelse(psa_attr_ok, "true", "false")),
              paste0("--include_psa001_dominant=", ifelse(psa_dom_ok, "true", "false")),
              "--out_summary=reports/site_variance_decomposition.csv",
@@ -259,7 +259,7 @@ kfold_psa_dom_tag <- if (psa_dom_ok && psa_dom_kfold_ok) psa_dom_tag else "none"
 
 if (kfold_stroop_tag != "none" || kfold_psa_attr_tag != "none" || kfold_psa_dom_tag != "none") {
   run_rscript(
-    args = c("R/06_site_models_table.R",
+    args = c("R/10_site_models_table.R",
              "--out=reports/site_model_comparisons.csv",
              paste0("--stroop_tag=", kfold_stroop_tag),
              paste0("--stroop_cv_tag=", stroop_cv_tag),
@@ -271,7 +271,7 @@ if (kfold_stroop_tag != "none" || kfold_psa_attr_tag != "none" || kfold_psa_dom_
   )
 
   run_rscript(
-    args = c("R/09_site_kfold_stack.R"),
+    args = c("R/11_site_kfold_stack.R"),
     desc = "Site K-fold comparison stack"
   )
 }

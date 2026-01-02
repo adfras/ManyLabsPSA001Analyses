@@ -5,6 +5,6 @@ CmdStan: set CMDSTAN env var to your CmdStan install path.
 
 Example run (Linux):
 export CMDSTAN=/path/to/cmdstan-2.37.0
-Rscript R/04_fit_stroop_location_scale.R data/processed/stroop_ml3_holdout_holdout.csv       --tag stroop_ml3_holdout_homo --homo_only true --compare_homo false --loo false       --chains 2 --parallel_chains 2 --iter 800 --init 0 --adapt_delta 0.99 --max_treedepth 15 --refresh 1
+Rscript R/05_fit_location_scale.R data/processed/stroop_ml3_holdout_holdout.csv       --tag stroop_ml3_holdout_homo --homo_only true --compare_homo false --loo false       --chains 2 --parallel_chains 2 --iter 800 --init 0 --adapt_delta 0.99 --max_treedepth 15 --refresh 1
 
-Rscript R/19_holdout_eval_homo.R --in data/processed/stroop_ml3_holdout_holdout.csv --tag stroop_ml3_holdout_homo
+Rscript R/14_holdout_eval_homo.R --in data/processed/stroop_ml3_holdout_holdout.csv --tag stroop_ml3_holdout_homo

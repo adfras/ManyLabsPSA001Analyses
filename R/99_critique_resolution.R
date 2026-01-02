@@ -71,7 +71,7 @@ homo_summary <- file.path("reports", paste0("location_scale_homo_", refit_tag, "
 if (refit_if_bad && !rhat_ok(homo_summary, rhat_threshold)) {
   rscript <- file.path(R.home("bin"), "Rscript.exe")
   system2(rscript, args = c(
-    "R/04_fit_stroop_location_scale.R",
+    "R/05_fit_location_scale.R",
     refit_data,
     "--tag", refit_tag,
     "--homo_only", "true", "--compare_homo", "true", "--loo", "false",

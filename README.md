@@ -40,14 +40,14 @@ Rscript R/01_setup.R
 
 3) Build processed datasets:
 ```bash
-Rscript R/03_make_stroop_trials_with_site.R
-Rscript R/13_make_psa001_trait_dataset.R --trait attractive
-Rscript R/13_make_psa001_trait_dataset.R --trait dominant
+Rscript R/02_make_stroop_trials_with_site.R
+Rscript R/03_make_psa001_trait_dataset.R --trait attractive
+Rscript R/03_make_psa001_trait_dataset.R --trait dominant
 ```
 
 4) (Optional, recommended) Build the Stroop subsample for *site K-fold* (supplemental):
 ```bash
-Rscript R/05_make_stroop_subsample.R \
+Rscript R/04_make_site_subsample.R \
   --in data/processed/trials_stroop_ml3_with_site.csv \
   --out data/processed/trials_stroop_ml3_with_site_sub30.csv \
   --per_site 30 --seed 2027
@@ -85,7 +85,7 @@ Place them at:
 
 If you only have the smaller exploratory subset, run:
 ```bash
-Rscript R/13_make_psa001_trait_dataset.R --trait dominant --ind path/to/subset_ind.csv --faces path/to/subset_faces.csv
+Rscript R/03_make_psa001_trait_dataset.R --trait dominant --ind path/to/subset_ind.csv --faces path/to/subset_faces.csv
 ```
 
 ## Outputs (what to look at)
@@ -111,28 +111,28 @@ Rscript R/13_make_psa001_trait_dataset.R --trait dominant --ind path/to/subset_i
 - `R/01_setup.R`: installs R packages and CmdStan.
 
 **Data preparation**
-- `R/03_make_stroop_trials_with_site.R`: builds Stroop trial CSV with `y`, `person`, `X_congruent`, `site`.
-- `R/13_make_psa001_trait_dataset.R`: builds PSA001 trial CSV for a trait (e.g., `dominant`, `attractive`) with `y`, `person`, `X_male`, `site`.
-- `R/05_make_stroop_subsample.R`: site-balanced participant subsample for faster CV/diagnostics.
+- `R/02_make_stroop_trials_with_site.R`: builds Stroop trial CSV with `y`, `person`, `X_congruent`, `site`.
+- `R/03_make_psa001_trait_dataset.R`: builds PSA001 trial CSV for a trait (e.g., `dominant`, `attractive`) with `y`, `person`, `X_male`, `site`.
+- `R/04_make_site_subsample.R`: site-balanced participant subsample for faster CV/diagnostics.
 
 **Model fitting (Stan)**
-- `R/04_fit_stroop_location_scale.R`: fits the hierarchical location–scale model (and optionally the homoskedastic baseline) to any processed CSV.
+- `R/05_fit_location_scale.R`: fits the hierarchical location–scale model (and optionally the homoskedastic baseline) to any processed CSV.
   - Stan programs live in `stan/`.
 
 **Held-out trials (within-person)**
-- `R/18_holdout_pipeline.R`: end-to-end helper (make holdout → fit → evaluate) for PSA001 (and optionally Stroop).
-- `R/17_trial_holdout_predict.R`: creates holdout indicators and evaluates predictions from participant posterior means.
-- `R/19_holdout_eval_homo.R`: evaluates holdout predictions for the homoskedastic baseline using summary means.
+- `R/13_holdout_pipeline.R`: end-to-end helper (make holdout → fit → evaluate) for PSA001 (and optionally Stroop).
+- `R/12_trial_holdout_predict.R`: creates holdout indicators and evaluates predictions from participant posterior means.
+- `R/14_holdout_eval_homo.R`: evaluates holdout predictions for the homoskedastic baseline using summary means.
 
 **Site generalization (supplemental)**
-- `R/11_kfold_location_scale.R`: site/person K-fold CV for hetero vs homo (robust alternative to grouped PSIS-LOO).
-- `R/06_site_models_table.R`: compiles per-dataset hetero-vs-homo comparisons into a single table.
-- `R/09_site_kfold_stack.R`: stacks site K-fold comparison outputs + variance decomposition into one view.
-- `R/08_site_variance_decomp.R`: site-level mix/precision decomposition using participant summaries.
+- `R/06_kfold_location_scale.R`: site/person K-fold CV for hetero vs homo (robust alternative to grouped PSIS-LOO).
+- `R/10_site_models_table.R`: compiles per-dataset hetero-vs-homo comparisons into a single table.
+- `R/11_site_kfold_stack.R`: stacks site K-fold comparison outputs + variance decomposition into one view.
+- `R/09_site_variance_decomp.R`: site-level mix/precision decomposition using participant summaries.
 
 **Results + checks**
-- `R/07_participants_prevalence.R`: prevalence categories from participant tables (responders / opposite / ROPE / uncertain).
-- `R/12_rq1_shift_table.R`: extracts `beta[2]` and `tau_site[2]` from hetero vs homo summaries.
+- `R/08_participants_prevalence.R`: prevalence categories from participant tables (responders / opposite / ROPE / uncertain).
+- `R/07_rq1_shift_table.R`: extracts `beta[2]` and `tau_site[2]` from hetero vs homo summaries.
 - `R/99_critique_resolution.R`: builds `results_checks.md`, `results_draft.md`, and outlier/diagnostic plots.
 
 **Optional PSA001 “why do people diverge?” analyses (exploratory)**

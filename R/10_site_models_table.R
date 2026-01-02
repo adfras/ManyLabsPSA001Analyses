@@ -91,7 +91,7 @@ stroop_summary <- pick_path(
     file.path("stroop_ml3_bundle", "reports", paste0("location_scale_", stroop_tag, "_summary.csv"))
   ),
   label = "Stroop summary",
-  hint = "Run: Rscript R/04_fit_stroop_location_scale.R data/processed/trials_stroop_ml3_with_site.csv --tag stroop_ml3_site --loo false --compare_homo false"
+  hint = "Run: Rscript R/05_fit_location_scale.R data/processed/trials_stroop_ml3_with_site.csv --tag stroop_ml3_site --loo false --compare_homo false"
 )
 stroop_bf <- pick_path(
   c(
@@ -102,10 +102,10 @@ stroop_bf <- pick_path(
   label = "Stroop predictive comparison (hetero vs homo)",
   hint = paste0(
     "Preferred (site K-fold, on Stroop subsample):\n",
-    "  Rscript R/11_kfold_location_scale.R data/processed/trials_stroop_ml3_with_site_sub30.csv \\\n",
+    "  Rscript R/06_kfold_location_scale.R data/processed/trials_stroop_ml3_with_site_sub30.csv \\\n",
     "    --tag ", stroop_cv_tag, " --unit site --k_site 10 --chains 2 --iter 600 --init 0 --adapt_delta 0.99 --max_treedepth 15\n\n",
     "Fallback (PSIS-LOO on Stroop subsample):\n",
-    "  Rscript R/04_fit_stroop_location_scale.R data/processed/trials_stroop_ml3_with_site_sub30.csv \\\n",
+    "  Rscript R/05_fit_location_scale.R data/processed/trials_stroop_ml3_with_site_sub30.csv \\\n",
     "    --tag ", stroop_cv_tag, " --loo true --compare_homo true --moment_match true --init 0 --adapt_delta 0.95"
   )
 )
@@ -118,7 +118,7 @@ psa001_attractive_summary <- if (nzchar(psa001_attractive_tag) && psa001_attract
     ),
     label = "PSA001 attractive summary",
     hint = paste0(
-      "Run: Rscript R/04_fit_stroop_location_scale.R data/processed/psa001_attractive_gender.csv ",
+      "Run: Rscript R/05_fit_location_scale.R data/processed/psa001_attractive_gender.csv ",
       "--tag ", psa001_attractive_tag, " --loo false --compare_homo false --init 0 --adapt_delta 0.99 --max_treedepth 15"
     )
   )
@@ -133,7 +133,7 @@ psa001_attractive_bf <- if (!is.na(psa001_attractive_summary)) {
     label = "PSA001 attractive predictive comparison (hetero vs homo)",
     hint = paste0(
       "Run site K-fold CV:\n",
-      "  Rscript R/11_kfold_location_scale.R data/processed/psa001_attractive_gender.csv \\\n",
+      "  Rscript R/06_kfold_location_scale.R data/processed/psa001_attractive_gender.csv \\\n",
       "    --tag ", psa001_attractive_tag, " --unit site --k_site 10 --chains 2 --iter 600 --init 0 --adapt_delta 0.99 --max_treedepth 15"
     )
   )
@@ -147,7 +147,7 @@ psa001_dominant_summary <- if (nzchar(psa001_dominant_tag) && psa001_dominant_ta
     ),
     label = "PSA001 dominant summary",
     hint = paste0(
-      "Run: Rscript R/04_fit_stroop_location_scale.R data/processed/psa001_dominant_gender.csv ",
+      "Run: Rscript R/05_fit_location_scale.R data/processed/psa001_dominant_gender.csv ",
       "--tag ", psa001_dominant_tag, " --loo false --compare_homo false --init 0 --adapt_delta 0.99 --max_treedepth 15"
     )
   )
@@ -162,7 +162,7 @@ psa001_dominant_bf <- if (!is.na(psa001_dominant_summary)) {
     label = "PSA001 dominant predictive comparison (hetero vs homo)",
     hint = paste0(
       "Run site K-fold CV:\n",
-      "  Rscript R/11_kfold_location_scale.R data/processed/psa001_dominant_gender.csv \\\n",
+      "  Rscript R/06_kfold_location_scale.R data/processed/psa001_dominant_gender.csv \\\n",
       "    --tag ", psa001_dominant_tag, " --unit site --k_site 10 --chains 2 --iter 600 --init 0 --adapt_delta 0.99 --max_treedepth 15"
     )
   )

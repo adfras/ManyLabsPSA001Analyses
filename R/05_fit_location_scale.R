@@ -91,7 +91,7 @@ if (do_loo && loo_unit != "obs") {
     "For hierarchical random-effects models, PSIS can be unreliable when ",
     "leaving out whole persons/sites (high Pareto-k). ",
     "For defensible group-level generalization, prefer K-fold CV via ",
-    "R/11_kfold_location_scale.R."
+    "R/06_kfold_location_scale.R."
   )
 }
 
@@ -216,7 +216,7 @@ append_manifest_row <- function(model_type, action, seed_val) {
   if (!exists("append_run_manifest")) return(invisible(FALSE))
   append_run_manifest(list(
     timestamp = format(Sys.time(), "%Y-%m-%d %H:%M:%S%z"),
-    script = "R/04_fit_stroop_location_scale.R",
+    script = "R/05_fit_location_scale.R",
     action = action,
     model = model_type,
     tag = tag,
