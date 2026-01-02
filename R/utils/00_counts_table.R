@@ -8,8 +8,8 @@
 # Optionally also by a condition column (e.g., CONGRUENT or X_smile).
 #
 # Usage:
-#   Rscript R/00_counts_table.R --in data/processed/trials_stroop_ml3_with_site.csv --out reports/counts_stroop_by_site.csv
-#   Rscript R/00_counts_table.R --in data/processed/psa001_dominant_gender.csv --out reports/counts_psa001_dominant_by_site.csv --condition_col X_male
+#   Rscript R/utils/00_counts_table.R --in data/processed/trials_stroop_ml3_with_site.csv --out reports/counts_stroop_by_site.csv
+#   Rscript R/utils/00_counts_table.R --in data/processed/psa001_dominant_gender.csv --out reports/counts_psa001_dominant_by_site.csv --condition_col X_male
 
 suppressPackageStartupMessages({
   library(tidyverse)

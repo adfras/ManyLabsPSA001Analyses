@@ -9,7 +9,7 @@
 # - data/processed/psa001_<trait>_gender.csv
 #
 # The output format is compatible with:
-# - R/00_counts_table.R
+# - R/utils/00_counts_table.R
 # - R/04_fit_stroop_location_scale.R
 #
 # Usage:

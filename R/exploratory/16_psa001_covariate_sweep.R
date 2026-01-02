@@ -189,7 +189,7 @@ univariate_lm <- function(df, outcome, predictors, weights = NULL) {
 run_trait <- function(dataset_label, trait_name) {
   cluster_path <- paste0("reports/psa001_", trait_name, "_clusters.csv")
   if (!file.exists(cluster_path)) {
-    stop("Missing cluster file: ", cluster_path, ". Run R/15_psa001_cluster_analysis.R first.")
+    stop("Missing cluster file: ", cluster_path, ". Run R/exploratory/15_psa001_cluster_analysis.R first.")
   }
 
   clusters <- read_csv(cluster_path, show_col_types = FALSE)

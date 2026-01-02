@@ -135,14 +135,19 @@ Rscript R/13_make_psa001_trait_dataset.R --trait dominant --ind path/to/subset_i
 - `R/12_rq1_shift_table.R`: extracts `beta[2]` and `tau_site[2]` from hetero vs homo summaries.
 - `R/99_critique_resolution.R`: builds `results_checks.md`, `results_draft.md`, and outlier/diagnostic plots.
 
-**Optional PSA001 “why do people diverge?” analyses**
-- `R/14_psa001_divergence_models.R`, `R/15_psa001_cluster_analysis.R`, `R/16_psa001_covariate_sweep.R`: exploratory/supporting analyses of subgroup structure and covariates.
+**Optional PSA001 “why do people diverge?” analyses (exploratory)**
+- `R/exploratory/14_psa001_divergence_models.R`, `R/exploratory/15_psa001_cluster_analysis.R`, `R/exploratory/16_psa001_covariate_sweep.R`: exploratory/supporting analyses of subgroup structure and covariates.
 
 ### `R/lib/` (shared utilities)
 These are sourced by multiple scripts to reduce duplication:
 - `R/lib/cli_utils.R`: consistent `--flag` parsing helpers.
 - `R/lib/file_utils.R`: path helpers + fallback to archived report files by basename.
 - `R/lib/prevalence_utils.R`: person↔site mapping + direction detection utilities.
+
+### `R/utils/` (optional helpers)
+Not required for reproducing RQ1–RQ3, but useful during development/QA:
+- `R/utils/00_counts_table.R`: quick per-site counts sanity checks.
+- `R/utils/00_backfill_manifest_from_cmdstan.R`: reconstruct `reports/run_manifest.csv` from older CmdStan CSV headers.
 
 ## Results snapshot (tracked)
 A lightweight snapshot of the *intended outputs* is tracked under `results/` so others can audit what the pipeline produces.
