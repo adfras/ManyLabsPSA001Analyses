@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-# Update only missing outputs for RQ1–RQ4.
+# Update only missing outputs for revised RQs and holdout comparisons.
 # This script tries to rebuild lightweight outputs from existing fits/CmdStan CSVs.
 # It will only refit models if explicitly allowed via --allow_refit true and/or
 # --allow_kfold true.
@@ -8,26 +8,7 @@ suppressPackageStartupMessages({
   library(tidyverse)
 })
 
-parse_flag <- function(name, default = NULL) {
-  args <- paste(commandArgs(), collapse = " ")
-  m <- regexpr(paste0("--", name, "(=| )([^ ]+)"), args)
-  if (m[1] == -1) return(default)
-  sub(".*--", "", regmatches(args, m)) |>
-    sub(paste0(name, "(=| )"), "", x = _) |>
-    trimws()
-}
-
-parse_bool <- function(x, default = FALSE) {
-  if (is.null(x)) return(default)
-  tolower(x) %in% c("1", "true", "yes", "y", "t")
-}
-
-parse_int <- function(x, default = NULL) {
-  if (is.null(x)) return(default)
-  out <- suppressWarnings(as.integer(x))
-  if (is.na(out)) return(default)
-  out
-}
+source(file.path("R", "lib", "cli_utils.R"))
 
 run_rscript <- function(args, desc) {
   cat("\n==>", desc, "\n")
@@ -219,7 +200,7 @@ stroop_ok <- ensure_hetero_reports(stroop_tag, stroop_data, "Stroop")
 psa_attr_ok <- ensure_hetero_reports(psa_attr_tag, psa_attr_data, "PSA001_Attractive")
 psa_dom_ok <- ensure_hetero_reports(psa_dom_tag, psa_dom_data, "PSA001_Dominant")
 
-# 3) Ensure homo summaries (needed for RQ1)
+# 3) Ensure homo summaries (needed for shift table)
 stroop_homo_ok <- ensure_homo_summary(stroop_tag, stroop_data, "Stroop")
 psa_attr_homo_ok <- ensure_homo_summary(psa_attr_tag, psa_attr_data, "PSA001_Attractive")
 psa_dom_homo_ok <- ensure_homo_summary(psa_dom_tag, psa_dom_data, "PSA001_Dominant")
@@ -231,7 +212,7 @@ psa_dom_kfold_ok <- ensure_kfold(psa_dom_sub_data, psa_dom_cv_tag, "PSA001_Domin
 
 # 5) Build RQ tables (only if inputs exist)
 
-# RQ1 shift table
+# Shift table (homo vs hetero)
 rq1_stroop_tag <- if (stroop_ok && stroop_homo_ok) stroop_tag else "none"
 rq1_psa_attr_tag <- if (psa_attr_ok && psa_attr_homo_ok) psa_attr_tag else "none"
 rq1_psa_dom_tag <- if (psa_dom_ok && psa_dom_homo_ok) psa_dom_tag else "none"
@@ -243,11 +224,11 @@ if (rq1_stroop_tag != "none" || rq1_psa_attr_tag != "none" || rq1_psa_dom_tag !=
              paste0("--psa001_attractive_tag=", rq1_psa_attr_tag),
              paste0("--psa001_dominant_tag=", rq1_psa_dom_tag),
              "--out=reports/rq1_shift_table.csv"),
-    desc = "RQ1 shift table"
+    desc = "Shift table (homo vs hetero)"
   )
 }
 
-# RQ2 prevalence
+# Participant prevalence
 if (stroop_ok || psa_attr_ok || psa_dom_ok) {
   run_rscript(
     args = c("R/07_participants_prevalence.R",
@@ -255,11 +236,11 @@ if (stroop_ok || psa_attr_ok || psa_dom_ok) {
              paste0("--include_psa001_dominant=", ifelse(psa_dom_ok, "true", "false")),
              "--out_detail=reports/person_prevalence_detail.csv",
              "--out_summary=reports/person_prevalence_summary.csv"),
-    desc = "RQ2 participant prevalence"
+    desc = "Participant prevalence summary"
   )
 }
 
-# RQ3 variance decomposition
+# Site variance decomposition (supplemental)
 if (stroop_ok || psa_attr_ok || psa_dom_ok) {
   run_rscript(
     args = c("R/08_site_variance_decomp.R",
@@ -267,31 +248,31 @@ if (stroop_ok || psa_attr_ok || psa_dom_ok) {
              paste0("--include_psa001_dominant=", ifelse(psa_dom_ok, "true", "false")),
              "--out_summary=reports/site_variance_decomposition.csv",
              "--out_site=reports/site_level_mix_precision.csv"),
-    desc = "RQ3 site variance decomposition"
+    desc = "Site variance decomposition (supplemental)"
   )
 }
 
-# RQ4 tables (requires summaries + k-fold)
-rq4_stroop_tag <- if (stroop_ok && stroop_kfold_ok) stroop_tag else "none"
-rq4_psa_attr_tag <- if (psa_attr_ok && psa_attr_kfold_ok) psa_attr_tag else "none"
-rq4_psa_dom_tag <- if (psa_dom_ok && psa_dom_kfold_ok) psa_dom_tag else "none"
+# Holdout comparison tables (requires summaries + k-fold)
+kfold_stroop_tag <- if (stroop_ok && stroop_kfold_ok) stroop_tag else "none"
+kfold_psa_attr_tag <- if (psa_attr_ok && psa_attr_kfold_ok) psa_attr_tag else "none"
+kfold_psa_dom_tag <- if (psa_dom_ok && psa_dom_kfold_ok) psa_dom_tag else "none"
 
-if (rq4_stroop_tag != "none" || rq4_psa_attr_tag != "none" || rq4_psa_dom_tag != "none") {
+if (kfold_stroop_tag != "none" || kfold_psa_attr_tag != "none" || kfold_psa_dom_tag != "none") {
   run_rscript(
     args = c("R/06_site_models_table.R",
              "--out=reports/site_model_comparisons.csv",
-             paste0("--stroop_tag=", rq4_stroop_tag),
+             paste0("--stroop_tag=", kfold_stroop_tag),
              paste0("--stroop_cv_tag=", stroop_cv_tag),
-             paste0("--psa001_attractive_tag=", rq4_psa_attr_tag),
+             paste0("--psa001_attractive_tag=", kfold_psa_attr_tag),
              paste0("--psa001_attractive_cv_tag=", psa_attr_cv_tag),
-             paste0("--psa001_dominant_tag=", rq4_psa_dom_tag),
+             paste0("--psa001_dominant_tag=", kfold_psa_dom_tag),
              paste0("--psa001_dominant_cv_tag=", psa_dom_cv_tag)),
     desc = "Site model comparisons"
   )
 
   run_rscript(
-    args = c("R/09_rq4_stack.R"),
-    desc = "RQ4 comparison stack"
+    args = c("R/09_site_kfold_stack.R"),
+    desc = "Site K-fold comparison stack"
   )
 }
 

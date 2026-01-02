@@ -17,26 +17,7 @@ if (nzchar(override)) Sys.setenv(CMDSTAN = override)
 cp <- Sys.getenv("CMDSTAN", unset = "")
 if (nzchar(cp)) cmdstanr::set_cmdstan_path(cp)
 
-parse_flag <- function(name, default = NULL) {
-  args <- paste(commandArgs(), collapse = " ")
-  m <- regexpr(paste0("--", name, "(=| )([^ ]+)"), args)
-  if (m[1] == -1) return(default)
-  sub(".*--", "", regmatches(args, m)) |>
-    sub(paste0(name, "(=| )"), "", x = _) |>
-    trimws()
-}
-
-parse_bool <- function(x, default = FALSE) {
-  if (is.null(x)) return(default)
-  tolower(x) %in% c("1", "true", "yes", "y", "t")
-}
-
-parse_num <- function(x, default = NULL) {
-  if (is.null(x)) return(default)
-  out <- suppressWarnings(as.numeric(x))
-  if (is.na(out)) return(default)
-  out
-}
+source(file.path("R", "lib", "cli_utils.R"))
 
 pos_args <- commandArgs(trailingOnly = TRUE)
 in_path <- if (length(pos_args) >= 1 && !startsWith(pos_args[[1]], "--")) pos_args[[1]] else parse_flag("data", "data/processed/trials.csv")
@@ -134,6 +115,16 @@ if (!use_site_effects) {
   if (is.na(loo_disabled_reason)) loo_disabled_reason <- "site_effects_disabled"
 }
 
+# Allow optional holdout indicator column w (0/1) for within-person prediction.
+if ("w" %in% names(df)) {
+  w_col <- as.integer(df$w)
+  if (any(is.na(w_col)) || any(!w_col %in% c(0L, 1L))) {
+    stop("Column 'w' must be 0/1 (train/holdout) with no missing values.")
+  }
+} else {
+  w_col <- rep(1L, nrow(df))
+}
+
 stan_data <- list(
   N = nrow(df),
   J = J,
@@ -144,7 +135,7 @@ stan_data <- list(
   site = site_int,
   person_site = person_site,
   y = df$y,
-  w = rep(1L, nrow(df))
+  w = w_col
 )
 
 # Output paths (used by both sampling + reuse)

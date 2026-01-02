@@ -1,6 +1,6 @@
-# Draft Results and Interpretation (RQ1–RQ4)
+# Draft Results and Interpretation (RQ1–RQ3)
 
-## RQ2: What participant-slope distributions imply
+## RQ1/RQ2: Task comparison and direction prevalence (participant slopes)
 
 | dataset | n | mean_slope | median_slope | p05 | p95 | responders_pct | opposite_pct | near_zero_pct |
 |---|---|---|---|---|---|---|---|---|
@@ -13,25 +13,25 @@ Interpretation:
 - **PSA001 Attractive**: average effect negative with meaningful spread; most are in the expected direction, with a small opposite-direction minority.
 - **PSA001 Dominant**: mean near zero with sign-mixing (responders and opposites are comparable), consistent with mixed individual trajectories.
 
-## RQ1: Does modeling precision shift effects and site heterogeneity?
+## Supplemental: Homoskedastic vs heteroskedastic shift
 | dataset | beta2_homo_mean | beta2_hetero_mean | delta_beta2 | tau_site2_homo_mean | tau_site2_hetero_mean | delta_tau_site2 |
 |---|---|---|---|---|---|---|
 | Stroop | -0.085 | -0.080 | 0.005 | 0.010 | 0.010 | 0.000 |
 | PSA001_Attractive | -0.602 | -0.594 | 0.008 | 0.072 | 0.077 | 0.005 |
-| PSA001_Dominant | 0.070 | 0.075 | 0.005 | 0.165 | 0.196 | 0.031 |
+| PSA001_Dominant | 0.063 | 0.075 | 0.012 | 0.164 | 0.196 | 0.032 |
 
 Interpretation: effects are similar across homo vs hetero fits; site heterogeneity does **not** shrink under the heteroskedastic model (often slightly larger).
 
-## RQ3: Are site differences explained by mix/precision?
+## Supplemental: Site variance decomposition (mix/precision)
 | dataset | baseline_site_sd | residual_sd | variance_explained_pct | n_sites |
 |---|---|---|---|---|
 | PSA001_Attractive | 0.271 | 0.197 | 46.899 | 34.000 |
 | PSA001_Dominant | 0.410 | 0.193 | 77.889 | 37.000 |
 | Stroop | 0.008 | 0.005 | 70.102 | 22.000 |
 
-Interpretation: a substantial portion of site-level variance is explained by composition/precision (strong for Stroop and Dominant; partial for Attractive).
+Interpretation: a substantial portion of site-level variance is explained by composition/precision (partial for Attractive; stronger for Stroop/Dominant).
 
-## RQ4: Predictive comparison (site K-fold)
+## Supplemental: Site K-fold predictive comparison
 | dataset | comparison_method | comparison_unit | k_folds | elpd_diff | elpd_diff_se | delta_looic |
 |---|---|---|---|---|---|---|
 | Stroop | kfold | site | 5.000 | 3606.230 | 278.009 | 7212.459 |

@@ -12,31 +12,7 @@ suppressPackageStartupMessages({
   library(ggplot2)
 })
 
-parse_flag <- function(name, default = NULL) {
-  args <- commandArgs(trailingOnly = TRUE)
-  if (!length(args)) return(default)
-  key <- paste0("--", name)
-  for (i in seq_along(args)) {
-    if (args[i] == key && i < length(args)) return(args[i + 1])
-    if (startsWith(args[i], paste0(key, "="))) return(sub(paste0(key, "="), "", args[i]))
-  }
-  default
-}
-
-parse_bool <- function(x, default = FALSE) {
-  if (is.null(x)) return(default)
-  tolower(as.character(x)) %in% c("1", "true", "t", "yes", "y")
-}
-
-parse_num <- function(x, default) {
-  if (is.null(x) || !nzchar(x)) return(default)
-  as.numeric(x)
-}
-
-parse_int <- function(x, default) {
-  if (is.null(x) || !nzchar(x)) return(default)
-  as.integer(x)
-}
+source(file.path("R", "lib", "cli_utils.R"))
 
 md_table <- function(df, digits = 3) {
   if (is.null(df) || !nrow(df)) return("(no data)")
@@ -56,9 +32,11 @@ prevalence_detail <- parse_flag("detail", "reports/person_prevalence_detail.csv"
 prevalence_summary <- parse_flag("summary", "reports/person_prevalence_summary.csv")
 rq1_shift <- parse_flag("rq1", "reports/rq1_shift_table.csv")
 rq3_path <- parse_flag("rq3", "reports/site_variance_decomposition.csv")
-rq4_path <- parse_flag("rq4", "reports/site_model_comparisons.csv")
+site_kfold_path <- parse_flag("site_kfold", "reports/site_model_comparisons.csv")
 site_mix <- parse_flag("site_mix", "reports/site_level_mix_precision.csv")
 rope <- parse_num(parse_flag("rope", "0.05"), 0.05)
+p_dir_thresh <- parse_num(parse_flag("p_dir_thresh", "0.90"), 0.90)
+p_rope_thresh <- parse_num(parse_flag("p_rope_thresh", "0.90"), 0.90)
 refit_if_bad <- parse_bool(parse_flag("refit_if_bad", "false"), FALSE)
 rhat_threshold <- parse_num(parse_flag("rhat_threshold", "1.05"), 1.05)
 
@@ -113,7 +91,7 @@ detail <- read_csv(prevalence_detail, show_col_types = FALSE)
 summary <- read_csv(prevalence_summary, show_col_types = FALSE)
 rq1 <- read_csv(rq1_shift, show_col_types = FALSE)
 rq3 <- if (file.exists(rq3_path)) read_csv(rq3_path, show_col_types = FALSE) else NULL
-rq4 <- if (file.exists(rq4_path)) read_csv(rq4_path, show_col_types = FALSE) else NULL
+site_kfold <- if (file.exists(site_kfold_path)) read_csv(site_kfold_path, show_col_types = FALSE) else NULL
 
 # 1) Direction coding check
 sign_check <- rq1 %>%
@@ -128,8 +106,8 @@ pdir <- detail %>%
     p_in_mean = mean(p_in_direction),
     p_in_median = median(p_in_direction),
     p_in_gt_0_5 = mean(p_in_direction > 0.5),
-    p_in_gt_0_9 = mean(p_in_direction > 0.9),
-    p_op_gt_0_9 = mean(p_opposite_direction > 0.9),
+    p_in_gt_0_9 = mean(p_in_direction >= p_dir_thresh),
+    p_op_gt_0_9 = mean(p_opposite_direction >= p_dir_thresh),
     p_near_mean = mean(p_near),
     .groups = "drop"
   )
@@ -142,7 +120,7 @@ pnear <- detail %>%
   summarise(
     rope = rope,
     p_near_mean = mean(p_near_rope),
-    near_zero_pct = mean(p_near_rope > 0.5),
+    near_zero_pct = mean(p_near_rope >= p_rope_thresh),
     .groups = "drop"
   )
 
@@ -279,11 +257,11 @@ writeLines(lines, out_md)
 cat("Wrote:", out_md, "\n")
 cat("Wrote:", out_outliers, "\n")
 
-# Write results draft summary (RQ1–RQ4)
+# Write results draft summary (RQ1–RQ3 + supplemental holdouts)
 draft <- c(
-  "# Draft Results and Interpretation (RQ1–RQ4)",
+  "# Draft Results and Interpretation (RQ1–RQ3)",
   "",
-  "## RQ2: What participant-slope distributions imply",
+  "## RQ1/RQ2: Task comparison and direction prevalence (participant slopes)",
   "",
   md_table(
     rq2_stats %>% mutate(
@@ -296,11 +274,23 @@ draft <- c(
   ),
   "",
   "Interpretation:",
-  "- **Stroop**: slopes are tightly negative; almost all participants are in the expected direction (robust effect, heterogeneity mostly magnitude).",
-  "- **PSA001 Attractive**: average effect negative with meaningful spread; most are in the expected direction, with a small opposite-direction minority.",
-  "- **PSA001 Dominant**: mean near zero with sign-mixing (responders and opposites are comparable), consistent with mixed individual trajectories.",
+  {
+    ds_present <- unique(rq2_stats$dataset)
+    bullets <- character(0)
+    if ("Stroop" %in% ds_present) {
+      bullets <- c(bullets, "- **Stroop**: slopes are tightly negative; almost all participants are in the expected direction (robust effect, heterogeneity mostly magnitude).")
+    }
+    if ("PSA001_Attractive" %in% ds_present) {
+      bullets <- c(bullets, "- **PSA001 Attractive**: average effect negative with meaningful spread; most are in the expected direction, with a small opposite-direction minority.")
+    }
+    if ("PSA001_Dominant" %in% ds_present) {
+      bullets <- c(bullets, "- **PSA001 Dominant**: mean near zero with sign-mixing (responders and opposites are comparable), consistent with mixed individual trajectories.")
+    }
+    if (!length(bullets)) bullets <- "- (No datasets found in prevalence detail.)"
+    bullets
+  },
   "",
-  "## RQ1: Does modeling precision shift effects and site heterogeneity?",
+  "## Supplemental: Homoskedastic vs heteroskedastic shift",
   if (is.null(rq1)) "(rq1_shift_table.csv not found)" else md_table(
     rq1 %>% select(dataset, beta2_homo_mean, beta2_hetero_mean, delta_beta2, tau_site2_homo_mean, tau_site2_hetero_mean, delta_tau_site2),
     digits = 3
@@ -308,18 +298,30 @@ draft <- c(
   "",
   "Interpretation: effects are similar across homo vs hetero fits; site heterogeneity does **not** shrink under the heteroskedastic model (often slightly larger).",
   "",
-  "## RQ3: Are site differences explained by mix/precision?",
+  "## Supplemental: Site variance decomposition (mix/precision)",
   if (is.null(rq3)) "(site_variance_decomposition.csv not found)" else md_table(
     rq3 %>% select(dataset, baseline_site_sd, residual_sd, variance_explained_pct, n_sites),
     digits = 3
   ),
   "",
-  "Interpretation: a substantial portion of site-level variance is explained by composition/precision (strong for Stroop and Dominant; partial for Attractive).",
+  {
+    if (is.null(rq3) || !nrow(rq3)) {
+      "Interpretation: (no site variance decomposition results found)."
+    } else {
+      ds <- rq3$dataset
+      msg <- "Interpretation: a substantial portion of site-level variance is explained by composition/precision"
+      if ("PSA001_Attractive" %in% ds) {
+        paste0(msg, " (partial for Attractive; stronger for Stroop/Dominant).")
+      } else {
+        paste0(msg, ".")
+      }
+    }
+  },
   "",
-  "## RQ4: Predictive comparison (site K-fold)",
-  if (is.null(rq4)) "(site_model_comparisons.csv not found)" else {
+  "## Supplemental: Site K-fold predictive comparison",
+  if (is.null(site_kfold)) "(site_model_comparisons.csv not found)" else {
     cols <- c("dataset", "comparison_method", "comparison_unit", "k_folds", "elpd_diff", "elpd_diff_se", "delta_looic")
-    md_table(rq4 %>% select(any_of(cols)), digits = 3)
+    md_table(site_kfold %>% select(any_of(cols)), digits = 3)
   },
   "",
   "Interpretation: heteroskedastic model is strongly favored for Stroop but disfavored for PSA001 tasks under site-held-out prediction; benefits are task-dependent."

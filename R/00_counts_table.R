@@ -15,14 +15,7 @@ suppressPackageStartupMessages({
   library(tidyverse)
 })
 
-parse_flag <- function(name, default = NULL) {
-  args <- paste(commandArgs(), collapse = " ")
-  m <- regexpr(paste0("--", name, "(=| )([^ ]+)"), args)
-  if (m[1] == -1) return(default)
-  sub(".*--", "", regmatches(args, m)) |>
-    sub(paste0(name, "(=| )"), "", x = _) |>
-    trimws()
-}
+source(file.path("R", "lib", "cli_utils.R"))
 
 in_path <- parse_flag("in", NA)
 out_path <- parse_flag("out", "reports/counts_by_site.csv")

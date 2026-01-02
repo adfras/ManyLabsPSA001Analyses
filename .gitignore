@@ -19,7 +19,12 @@ stan/*.o
 stan/*.a
 
 # Local docs
-Intro5.docx
+*.docx
+
+# Local scratch/artifacts
+logs/
+simple_test.R
+stroop_homo_vm_bundle.zip
 
 # Repomix bundles
 **/repomix-output*.xml

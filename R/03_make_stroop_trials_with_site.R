@@ -10,22 +10,8 @@ suppressPackageStartupMessages({
   library(tidyverse)
 })
 
-parse_flag <- function(name, default = NULL) {
-  args <- paste(commandArgs(), collapse = " ")
-  m <- regexpr(paste0("--", name, "(=| )([^ ]+)"), args)
-  if (m[1] == -1) return(default)
-  sub(".*--", "", regmatches(args, m)) |>
-    sub(paste0(name, "(=| )"), "", x = _) |>
-    trimws()
-}
-
-`%||%` <- function(a, b) if (!is.null(a) && !is.na(a)) a else b
-
-first_existing <- function(paths) {
-  hit <- paths[file.exists(paths)]
-  if (!length(hit)) return(NULL)
-  hit[[1]]
-}
+source(file.path("R", "lib", "cli_utils.R"))
+source(file.path("R", "lib", "file_utils.R"))
 
 out_path <- parse_flag("out", "data/processed/trials_stroop_ml3_with_site.csv")
 rt_path  <- parse_flag("stroop_rt", NA)

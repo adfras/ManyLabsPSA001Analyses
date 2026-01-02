@@ -22,26 +22,7 @@ if (nzchar(override)) Sys.setenv(CMDSTAN = override)
 cp <- Sys.getenv("CMDSTAN", unset = "")
 if (nzchar(cp)) cmdstanr::set_cmdstan_path(cp)
 
-parse_flag <- function(name, default = NULL) {
-  args <- paste(commandArgs(), collapse = " ")
-  m <- regexpr(paste0("--", name, "(=| )([^ ]+)"), args)
-  if (m[1] == -1) return(default)
-  sub(".*--", "", regmatches(args, m)) |>
-    sub(paste0(name, "(=| )"), "", x = _) |>
-    trimws()
-}
-
-parse_bool <- function(x, default = FALSE) {
-  if (is.null(x)) return(default)
-  tolower(x) %in% c("1", "true", "yes", "y", "t")
-}
-
-parse_num <- function(x, default = NULL) {
-  if (is.null(x)) return(default)
-  out <- suppressWarnings(as.numeric(x))
-  if (is.na(out)) return(default)
-  out
-}
+source(file.path("R", "lib", "cli_utils.R"))
 
 log_mean_exp_cols <- function(mat) {
   # mat: draws x n_points

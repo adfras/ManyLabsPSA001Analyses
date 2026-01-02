@@ -8,16 +8,16 @@
 ## 2) Uncertainty beyond posterior means
 | dataset | p_in_mean | p_in_median | p_in_gt_0_5 | p_in_gt_0_9 | p_op_gt_0_9 | p_near_mean |
 |---|---|---|---|---|---|---|
-| PSA001_Attractive | 0.868 | 0.998 | 0.882 | 0.738 | 0.043 | 0.018 |
-| PSA001_Dominant | 0.500 | 0.477 | 0.484 | 0.239 | 0.225 | 0.038 |
-| Stroop | 0.984 | 0.992 | 1.000 | 0.985 | 0.000 | 0.051 |
+| PSA001_Attractive | 0.868 | 0.998 | 0.882 | 0.738 | 0.043 | 0.045 |
+| PSA001_Dominant | 0.500 | 0.477 | 0.484 | 0.239 | 0.225 | 0.094 |
+| Stroop | 0.984 | 0.992 | 1.000 | 0.985 | 0.000 | 0.214 |
 
 ## 3) Near-zero sensitivity (ROPE)
 | dataset | rope | p_near_mean | near_zero_pct |
 |---|---|---|---|
 | PSA001_Attractive | 0.050 | 0.045 | 0.000 |
-| PSA001_Dominant | 0.050 | 0.094 | 0.003 |
-| Stroop | 0.050 | 0.214 | 0.048 |
+| PSA001_Dominant | 0.050 | 0.094 | 0.000 |
+| Stroop | 0.050 | 0.214 | 0.000 |
 
 ## 4) Outliers file
 - reports/participant_slope_outliers.csv
@@ -41,13 +41,7 @@
 ## 7) Diagnostics (core parameters)
 | summary_file | max_rhat | n_gt_1_01 | n_gt_1_05 | n_params |
 |---|---|---|---|---|
-| location_scale_homo_psa001_attractive_gender_site_ad99_summary.csv | 1.031 | 5.000 | 0.000 | 12.000 |
-| location_scale_homo_psa001_dominant_gender_site_ad99_summary.csv | 1.015 | 2.000 | 0.000 | 12.000 |
-| location_scale_homo_stroop_ml3_site_summary.csv | 1.010 | 0.000 | 0.000 | 12.000 |
-| location_scale_psa001_attractive_gender_site_ad99_summary.csv | 1.031 | 8.000 | 0.000 | 292.000 |
-| location_scale_psa001_attractive_gender_summary.csv | 1.053 | 8.000 | 2.000 | 292.000 |
-| location_scale_psa001_dominant_gender_site_ad99_summary.csv | 1.041 | 9.000 | 0.000 | 319.000 |
-| location_scale_stroop_ml3_site_sub10_summary.csv | 1.028 | 6.000 | 0.000 | 233.000 |
-| location_scale_stroop_ml3_site_sub30_mm_summary.csv | 1.026 | 8.000 | 0.000 | 673.000 |
-| location_scale_stroop_ml3_site_sub_summary.csv | 1.021 | 10.000 | 0.000 | 453.000 |
-| location_scale_stroop_ml3_site_summary.csv | 1.026 | 4.000 | 0.000 | 3350.000 |
+| location_scale_homo_stroop_ml3_holdout_homo_summary.csv | 1.022 | 2.000 | 0.000 | 12.000 |
+| location_scale_homo_stroop_ml3_site_homo_summary.csv | 1.005 | 0.000 | 0.000 | 12.000 |
+| location_scale_psa001_attractive_holdout_summary.csv | 1.040 | 6.000 | 0.000 | 292.000 |
+| location_scale_psa001_dominant_holdout_summary.csv | 1.034 | 7.000 | 0.000 | 319.000 |

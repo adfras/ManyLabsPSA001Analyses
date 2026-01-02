@@ -20,14 +20,7 @@ suppressPackageStartupMessages({
   library(tidyverse)
 })
 
-parse_flag <- function(name, default = NULL) {
-  args <- paste(commandArgs(), collapse = " ")
-  m <- regexpr(paste0("--", name, "(=| )([^ ]+)"), args)
-  if (m[1] == -1) return(default)
-  sub(".*--", "", regmatches(args, m)) |>
-    sub(paste0(name, "(=| )"), "", x = _) |>
-    trimws()
-}
+source(file.path("R", "lib", "cli_utils.R"))
 
 ind_path <- parse_flag("ind", "data/psa001_ind.csv")
 faces_path <- parse_flag("faces", "data/psa001_cfd_faces.csv")

@@ -10,31 +10,8 @@ suppressPackageStartupMessages({
   library(tidyverse)
 })
 
-# Simple key=value arg parser (e.g., --out=reports/site_model_comparisons.csv)
-parse_args <- function(args, defaults) {
-  out <- defaults
-  for (a in args) {
-    if (!grepl("=", a, fixed = TRUE)) next
-    kv <- strsplit(a, "=", fixed = TRUE)[[1]]
-    key <- sub("^--", "", kv[1])
-    out[[key]] <- kv[2]
-  }
-  out
-}
-
-first_existing <- function(paths) {
-  hit <- paths[file.exists(paths)]
-  if (!length(hit)) stop("None of these paths exist: ", paste(paths, collapse = ", "))
-  hit[[1]]
-}
-
-pick_path <- function(paths, label = "", hint = NULL) {
-  hit <- paths[file.exists(paths)]
-  if (length(hit)) return(hit[[1]])
-  msg <- paste0("Missing ", label, " file. Tried: ", paste(paths, collapse = ", "))
-  if (!is.null(hint)) msg <- paste0(msg, "\n\n", hint)
-  stop(msg)
-}
+source(file.path("R", "lib", "cli_utils.R"))
+source(file.path("R", "lib", "file_utils.R"))
 
 pull_stat <- function(df, vars, col = "mean", path = "") {
   # vars can be a single name or a vector of fallbacks.

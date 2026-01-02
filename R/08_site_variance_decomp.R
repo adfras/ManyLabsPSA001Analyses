@@ -7,69 +7,9 @@ suppressPackageStartupMessages({
   library(tidyverse)
 })
 
-parse_args <- function(args, defaults) {
-  out <- defaults
-  for (a in args) {
-    if (!grepl("=", a, fixed = TRUE)) next
-    kv <- strsplit(a, "=", fixed = TRUE)[[1]]
-    key <- sub("^--", "", kv[1])
-    out[[key]] <- kv[2]
-  }
-  out
-}
-
-parse_bool <- function(x, default = FALSE) {
-  if (is.null(x)) return(default)
-  tolower(x) %in% c("1", "true", "yes", "y", "t")
-}
-
-load_person_site_map <- function(path) {
-  if (!nzchar(path) || !file.exists(path)) {
-    warning("Site map input file not found: ", path)
-    return(tibble(person = character(), site = character()))
-  }
-  m <- readr::read_csv(
-    path,
-    show_col_types = FALSE,
-    col_types = readr::cols_only(
-      person = readr::col_character(),
-      site = readr::col_character()
-    )
-  ) %>%
-    transmute(person = as.character(person), site = as.character(site)) %>%
-    distinct()
-  dup <- m %>% count(person, name = "n_sites") %>% filter(n_sites > 1)
-  if (nrow(dup)) {
-    warning("Multiple sites per person in ", path, "; taking the first site per person.")
-    m <- m %>% group_by(person) %>% slice_head(n = 1) %>% ungroup()
-  }
-  m
-}
-
-attach_site <- function(df, site_map) {
-  if ("site" %in% names(df) && any(!is.na(df$site))) return(df)
-  if (!nrow(site_map)) {
-    if (!"site" %in% names(df)) df$site <- NA_character_
-    return(df)
-  }
-  df %>%
-    mutate(person = as.character(.data$person)) %>%
-    select(-any_of("site")) %>%
-    left_join(site_map, by = "person")
-}
-
-detect_direction <- function(beta_mean, dataset, min_abs_mean = 1e-4) {
-  m <- mean(beta_mean, na.rm = TRUE)
-  if (!is.finite(m)) {
-    warning("Non-finite mean beta for ", dataset, "; using direction=+1.")
-    return(1L)
-  }
-  if (abs(m) < min_abs_mean) {
-    warning("Mean beta near 0 for ", dataset, " (mean=", signif(m, 3), "); using direction=+1.")
-    return(1L)
-  }
-  if (m >= 0) 1L else -1L
-}
+source(file.path("R", "lib", "cli_utils.R"))
+source(file.path("R", "lib", "file_utils.R"))
+source(file.path("R", "lib", "prevalence_utils.R"))
 
 calc_probs <- function(df, dataset, mean_col, sd_col, sigma_col = NULL, eps = 0.02) {
   if (!mean_col %in% names(df) || !sd_col %in% names(df)) {
@@ -162,6 +102,13 @@ stroop_site_map <- load_person_site_map(opts$stroop_trials)
 psa001_attractive_site_map <- load_person_site_map(opts$psa001_attractive_trials)
 psa001_dominant_site_map <- load_person_site_map(opts$psa001_dominant_trials)
 
+stroop_file <- resolve_report_path(opts$stroop_file)
+stroop_alt <- resolve_report_path(opts$stroop_alt)
+psa001_attractive_file <- resolve_report_path(opts$psa001_attractive_file)
+psa001_attractive_alt <- resolve_report_path(opts$psa001_attractive_alt)
+psa001_dominant_file <- resolve_report_path(opts$psa001_dominant_file)
+psa001_dominant_alt <- resolve_report_path(opts$psa001_dominant_alt)
+
 if (file.exists(opts$detail_file)) {
   detail <- readr::read_csv(opts$detail_file, show_col_types = FALSE)
   if (!"site" %in% names(detail)) detail$site <- NA_character_
@@ -189,19 +136,19 @@ if (file.exists(opts$detail_file)) {
   }
 } else {
   rows <- list()
-  if (file.exists(opts$stroop_file)) {
-    df_raw <- readr::read_csv(opts$stroop_file, show_col_types = FALSE)
+  if (file.exists(stroop_file)) {
+    df_raw <- readr::read_csv(stroop_file, show_col_types = FALSE)
     df_raw <- attach_site(df_raw, stroop_site_map)
     rows[[length(rows) + 1]] <- calc_probs(df_raw, "Stroop", "beta_mean_X_congruent", "beta_sd_X_congruent", "sigma_mean", eps)
-  } else if (file.exists(opts$stroop_alt)) {
-    df_raw <- readr::read_csv(opts$stroop_alt, show_col_types = FALSE)
+  } else if (file.exists(stroop_alt)) {
+    df_raw <- readr::read_csv(stroop_alt, show_col_types = FALSE)
     df_raw <- attach_site(df_raw, stroop_site_map)
     rows[[length(rows) + 1]] <- calc_probs(df_raw, "Stroop", "beta_mean_X_congruent", "beta_sd_X_congruent", "sigma_mean", eps)
   }
   if (include_psa001_attractive) {
     psa001_attractive_part_path <- dplyr::coalesce(
-      if (file.exists(opts$psa001_attractive_file)) opts$psa001_attractive_file else NA_character_,
-      if (file.exists(opts$psa001_attractive_alt)) opts$psa001_attractive_alt else NA_character_
+      if (file.exists(psa001_attractive_file)) psa001_attractive_file else NA_character_,
+      if (file.exists(psa001_attractive_alt)) psa001_attractive_alt else NA_character_
     )
     if (!is.na(psa001_attractive_part_path)) {
       df_raw <- readr::read_csv(psa001_attractive_part_path, show_col_types = FALSE)
@@ -211,8 +158,8 @@ if (file.exists(opts$detail_file)) {
   }
   if (include_psa001_dominant) {
     psa001_dominant_part_path <- dplyr::coalesce(
-      if (file.exists(opts$psa001_dominant_file)) opts$psa001_dominant_file else NA_character_,
-      if (file.exists(opts$psa001_dominant_alt)) opts$psa001_dominant_alt else NA_character_
+      if (file.exists(psa001_dominant_file)) psa001_dominant_file else NA_character_,
+      if (file.exists(psa001_dominant_alt)) psa001_dominant_alt else NA_character_
     )
     if (!is.na(psa001_dominant_part_path)) {
       df_raw <- readr::read_csv(psa001_dominant_part_path, show_col_types = FALSE)

@@ -3,16 +3,18 @@
 Code-only repo for the Stroop ML3 + PSA001 (Social Faces) location–scale analyses.
 Raw data, processed data, model draws, and reports are intentionally *not* tracked in git.
 
+## Purpose
+This project examines how trial-level variability and sampling across random facets (participants, stimuli, and sites) shape the interpretation of psychological effects. Using hierarchical location-scale models fit at the trial level, we estimate mean effects and within-person volatility jointly while allowing effects to vary across people and, where relevant, across labs and stimuli. The objective is diagnostic rather than corrective: to determine whether apparent instability reflects mean shifts, variance shifts, or differences in precision across facets, and to evaluate models using held-out trial prediction against a homoskedastic baseline.
+
 ## Scope and decisions
 - Many Smiles is excluded from the main RQs (too few repeated measures per person).
-- RQ4 uses **site K-fold CV** (PSIS-LOO is unreliable for these hierarchical models).
-- Stroop K-fold runs on a **site-balanced subsample** for speed.
+- Holdout evaluation for Stroop uses a **site-balanced subsample** for speed.
+- Site K-fold comparisons are **supplemental** to RQ3 (generalization to unseen sites), not a core RQ.
 
 ## Research questions
-- **RQ1**: Does modeling trial-level precision change effect size and between-site heterogeneity?
-- **RQ2**: How much person-level heterogeneity remains after modeling precision?
-- **RQ3**: Are site differences explained by the mix of individual trajectories and their precision?
-- **RQ4**: Does the location–scale model predict better than a homoskedastic mixed model for *unseen sites*?
+- **RQ1 (Task comparison)**: How do within-person volatility and person-level effect heterogeneity differ between Stroop and PSA001 under the same hierarchical location-scale framework?
+- **RQ2 (Direction / prevalence)**: For each task, what is the prevalence of positive, near-zero, and negative person-level effects once trial noise and person-specific variance are modeled?
+- **RQ3 (Held-out prediction)**: Does modeling person-specific residual variance improve out-of-sample predictive performance (and calibration) relative to a homoskedastic mixed-effects baseline, particularly in the more variable task?
 
 ## Quick start (reproducible)
 1) Install packages + CmdStan:
@@ -29,7 +31,7 @@ Rscript R/13_make_psa001_trait_dataset.R --trait attractive
 Rscript R/13_make_psa001_trait_dataset.R --trait dominant
 ```
 
-4) (Recommended) Build the Stroop subsample for K-fold CV:
+4) (Optional) Build the Stroop subsample for site K-fold holdout (supplemental):
 ```bash
 Rscript R/05_make_stroop_subsample.R \
   --in data/processed/trials_stroop_ml3_with_site.csv \
@@ -74,8 +76,8 @@ Rscript R/13_make_psa001_trait_dataset.R --trait dominant --ind path/to/subset_i
 ## Key outputs (generated locally)
 - RQ1: `reports/rq1_shift_table.csv`
 - RQ2: `reports/person_prevalence_summary.csv` (figs under `reports/figs/`)
-- RQ3: `reports/site_variance_decomposition.csv` and `reports/site_level_mix_precision.csv`
-- RQ4: `reports/site_model_comparisons.csv` and `reports/rq4_comparison_stack.csv`
+- RQ3: `reports/holdout_*_holdout_summary.csv` and `reports/holdout_homo_*_holdout_homo_summary.csv`
+- Supplemental (site K-fold holdout): `reports/site_model_comparisons.csv` and `reports/site_kfold_comparison_stack.csv`
 
 ## Results snapshot (tracked)
 A lightweight snapshot of the core RQ outputs is in:

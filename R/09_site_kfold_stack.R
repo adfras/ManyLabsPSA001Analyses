@@ -1,37 +1,25 @@
 #!/usr/bin/env Rscript
-# Stack dataset-level comparison results (RQ4).
+# Stack dataset-level comparison results (site K-fold holdout).
 
 suppressPackageStartupMessages({
   library(tidyverse)
 })
 
-parse_args <- function(args, defaults) {
-  out <- defaults
-  for (a in args) {
-    if (!grepl("=", a, fixed = TRUE)) next
-    kv <- strsplit(a, "=", fixed = TRUE)[[1]]
-    key <- sub("^--", "", kv[1])
-    out[[key]] <- kv[2]
-  }
-  out
-}
+source(file.path("R", "lib", "cli_utils.R"))
+source(file.path("R", "lib", "file_utils.R"))
 
 defaults <- list(
   site_model_file = "reports/site_model_comparisons.csv",
   site_var_file = "reports/site_variance_decomposition.csv",
-  out = "reports/rq4_comparison_stack.csv"
+  out = "reports/site_kfold_comparison_stack.csv"
 )
 
 opts <- parse_args(commandArgs(trailingOnly = TRUE), defaults)
 
-first_existing <- function(paths) {
-  hit <- paths[file.exists(paths)]
-  if (!length(hit)) stop("None of these paths exist: ", paste(paths, collapse = ", "))
-  hit[[1]]
-}
-
 site_model_path <- first_existing(c(opts$site_model_file, "stroop_ml3_bundle/reports/site_model_comparisons.csv"))
 site_var_path   <- first_existing(c(opts$site_var_file, "stroop_ml3_bundle/reports/site_variance_decomposition.csv"))
+if (is.na(site_model_path) || !nzchar(site_model_path)) stop("Missing site_model_file: ", opts$site_model_file)
+if (is.na(site_var_path) || !nzchar(site_var_path)) stop("Missing site_var_file: ", opts$site_var_file)
 
 site_mod <- readr::read_csv(site_model_path, show_col_types = FALSE)
 site_var <- readr::read_csv(site_var_path, show_col_types = FALSE)

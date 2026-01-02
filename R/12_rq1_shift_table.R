@@ -14,16 +14,11 @@ suppressPackageStartupMessages({
   library(posterior)
 })
 
-parse_flag <- function(name, default = NULL) {
-  args <- paste(commandArgs(), collapse = " ")
-  m <- regexpr(paste0("--", name, "(=| )([^ ]+)"), args)
-  if (m[1] == -1) return(default)
-  sub(".*--", "", regmatches(args, m)) |>
-    sub(paste0(name, "(=| )"), "", x = _) |>
-    trimws()
-}
+source(file.path("R", "lib", "cli_utils.R"))
+source(file.path("R", "lib", "file_utils.R"))
 
 extract_from_summary_csv <- function(path, variables) {
+  path <- resolve_report_path(path, reports_dir = dirname(path))
   if (!file.exists(path)) stop("Missing summary file: ", path)
   df <- readr::read_csv(path, show_col_types = FALSE)
   df <- df %>% mutate(variable = trimws(as.character(.data$variable)))
@@ -69,8 +64,8 @@ extract_from_cmdstan_csv <- function(tag, variables) {
     filter(.data$variable %in% variables)
 }
 
-stroop_tag <- trimws(parse_flag("stroop_tag", "stroop_ml3_site_sub30_mm"))
-psa001_attractive_tag <- trimws(parse_flag("psa001_attractive_tag", "none"))
+stroop_tag <- trimws(parse_flag("stroop_tag", "stroop_ml3_site"))
+psa001_attractive_tag <- trimws(parse_flag("psa001_attractive_tag", "psa001_attractive_gender_site_ad99"))
 psa001_dominant_tag <- trimws(parse_flag("psa001_dominant_tag", "psa001_dominant_gender_site_ad99"))
 out_path <- parse_flag("out", "reports/rq1_shift_table.csv")
 
@@ -91,6 +86,7 @@ results <- datasets %>%
     hetero <- extract_from_summary_csv(hetero_summary_file, vars) %>%
       mutate(model = "heterogeneous")
     homo_summary_file <- file.path("reports", paste0("location_scale_homo_", tag, "_summary.csv"))
+    homo_summary_file <- resolve_report_path(homo_summary_file, reports_dir = dirname(homo_summary_file))
     homo <- if (file.exists(homo_summary_file)) {
       extract_from_summary_csv(homo_summary_file, vars) %>% mutate(model = "homogeneous")
     } else {
