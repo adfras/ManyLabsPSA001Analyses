@@ -65,7 +65,7 @@ Rscript run_all.R
 
 7) Compare your regenerated outputs to the tracked snapshot:
 ```bash
-diff -ru reports results/rq_results_2026-01-02 || true
+diff -ru reports results/rq_results_2026-01-03 || true
 ```
 
 ## Data download (not included in repo)
@@ -92,7 +92,7 @@ Rscript R/03_make_psa001_trait_dataset.R --trait dominant --ind path/to/subset_i
 ### Core “paper tables” (generated locally under `reports/`)
 - RQ1 (homo vs hetero parameter shift): `reports/rq1_shift_table.csv`
 - RQ2 (prevalence categories): `reports/person_prevalence_summary.csv` and `reports/person_prevalence_detail.csv`
-- RQ3 (trial holdout): `reports/holdout_*_summary.csv` and `reports/holdout_homo_*_summary.csv`
+- RQ3 (trial holdout): `reports/holdout_*_summary.csv` and `reports/holdout_homo_*_summary.csv` (**plug-in posterior means**, not full posterior predictive integration; see `R/12_trial_holdout_predict.R` and `R/14_holdout_eval_homo.R`)
 
 ### Supplemental (site-generalization)
 - Site variance decomposition: `reports/site_variance_decomposition.csv` and `reports/site_level_mix_precision.csv`
@@ -123,6 +123,10 @@ Rscript R/03_make_psa001_trait_dataset.R --trait dominant --ind path/to/subset_i
 - `R/13_holdout_pipeline.R`: end-to-end helper (make holdout → fit → evaluate) for PSA001 (and optionally Stroop).
 - `R/12_trial_holdout_predict.R`: creates holdout indicators and evaluates predictions from participant posterior means.
 - `R/14_holdout_eval_homo.R`: evaluates holdout predictions for the homoskedastic baseline using summary means.
+  - Example (Stroop homoskedastic holdout): fit the homoskedastic model on the holdout dataset, then evaluate:
+    - `Rscript R/05_fit_location_scale.R data/processed/stroop_ml3_holdout_holdout.csv --tag stroop_ml3_holdout_homo --homo_only true --compare_homo false --loo false`
+    - `Rscript R/14_holdout_eval_homo.R --in data/processed/stroop_ml3_holdout_holdout.csv --tag stroop_ml3_holdout_homo`
+    - Output: `reports/holdout_homo_stroop_ml3_holdout_homo_summary.csv`
 
 **Site generalization (supplemental)**
 - `R/06_kfold_location_scale.R`: site/person K-fold CV for hetero vs homo (robust alternative to grouped PSIS-LOO).
@@ -151,7 +155,7 @@ Not required for reproducing RQ1–RQ3, but useful during development/QA:
 
 ## Results snapshot (tracked)
 A lightweight snapshot of the *intended outputs* is tracked under `results/` so others can audit what the pipeline produces.
-- Latest: `results/rq_results_2026-01-02/`
+- Latest: `results/rq_results_2026-01-03/` (see `results/rq_results_2026-01-03/RESULTS.md`)
 - Older snapshots are kept for reference.
 
 ## Notes on compute and reproducibility
